@@ -1,3 +1,5 @@
+import math
+
 print(1)
 
 
@@ -6,3 +8,6 @@ b = 5678
 
 
 print(a + b)
+
+def hello():
+    print("Hello World")  # комментарий

@@ -1,0 +1,17 @@
+{
+  "scopeName": "source.python",
+  "patterns": [
+    {
+      "match": "\\b(def|class|import|for|while|if|else|elif|return|in|print)\\b",
+      "name": "keyword.control.python"
+    },
+    {
+      "match": "#.*$",
+      "name": "comment.line.number-sign.python"
+    },
+    {
+      "match": "\".*?\"|'.*?'",
+      "name": "string.quoted.python"
+    }
+  ]
+}
