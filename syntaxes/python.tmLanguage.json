@@ -2,7 +2,15 @@
   "scopeName": "source.python",
   "patterns": [
     {
-      "match": "\\b(def|class|import|for|while|if|else|elif|return|in|print)\\b",
+      "match": "\\b(def|class)\\b",
+      "name": "entity.name.function.python"
+    },
+    {
+      "match": "\\b(import|from|as)\\b",
+      "name": "keyword.import.python"
+    },
+    {
+      "match": "\\b(for|while|if|else|elif|return|in|print)\\b",
       "name": "keyword.control.python"
     },
     {
@@ -10,8 +18,16 @@
       "name": "comment.line.number-sign.python"
     },
     {
+      "match": "\\b(True|False|None)\\b",
+      "name": "constant.language.python"
+    },
+    {
       "match": "\".*?\"|'.*?'",
       "name": "string.quoted.python"
+    },
+    {
+      "match": "\\b\\d+\\b",
+      "name": "constant.numeric.python"
     }
   ]
 }

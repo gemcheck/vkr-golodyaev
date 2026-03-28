@@ -29,6 +29,13 @@
         "path": "./syntaxes/python.tmLanguage.json"
       }
     ],
+    "themes": [
+        {
+            "label": "VKR Python Colors",
+            "uiTheme": "vs-dark",
+            "path": "./themes/vkr-python-color-theme.json"
+        }
+    ],
     "commands": [
       {
         "command": "vkr-golodyaev.helloWorld",

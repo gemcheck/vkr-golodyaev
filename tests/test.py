@@ -10,4 +10,7 @@ b = 5678
 print(a + b)
 
 def hello():
-    print("Hello World")  # комментарий
+    import math
+    for i in range(5):
+        print("Hello", i)
+    return True  # комментарий

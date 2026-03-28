@@ -1,0 +1,37 @@
+{
+    "name": "VKR Python Colors",
+    "colors": {},
+    "tokenColors": [
+        {
+            "scope": "entity.name.function.python",
+            "settings": {
+                "foreground": "#FF5733",
+                "fontStyle": "bold"
+            }
+        },
+        {
+            "scope": "keyword.import.python",
+            "settings": { "foreground": "#33C1FF" }
+        },
+        {
+            "scope": "keyword.control.python",
+            "settings": { "foreground": "#75FF33", "fontStyle": "italic" }
+        },
+        {
+            "scope": "comment.line.number-sign.python",
+            "settings": { "foreground": "#AAAAAA", "fontStyle": "italic" }
+        },
+        {
+            "scope": "string.quoted.python",
+            "settings": { "foreground": "#FFD433" }
+        },
+        {
+            "scope": "constant.numeric.python",
+            "settings": { "foreground": "#FF33F6" }
+        },
+        {
+            "scope": "constant.language.python",
+            "settings": { "foreground": "#3380FF", "fontStyle": "bold" }
+        }
+    ]
+}
