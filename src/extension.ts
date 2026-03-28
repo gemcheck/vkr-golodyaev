@@ -1,26 +1,39 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+    console.log('✅ Extension "vkr-golodyaev" is now active!');
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vkr-golodyaev" is now active!');
+    // всплывающее окно при активации расширения
+    vscode.window.showInformationMessage('Расширение "vkr-golodyaev" активировано!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('vkr-golodyaev.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vkr-golodyaev!');
-	});
+    // команда 1: Hello World
+    const helloCommand = vscode.commands.registerCommand('vkr-golodyaev.helloWorld', () => {
+        vscode.window.showInformationMessage('Hello World from vkr-golodyaev!');
+        console.log('Hello World command executed');
+    });
 
-	context.subscriptions.push(disposable);
+    // команда 2: Пример вывода текущего файла
+    const currentFileCommand = vscode.commands.registerCommand('vkr-golodyaev.currentFile', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const fileName = editor.document.fileName;
+            vscode.window.showInformationMessage(`Текущий файл: ${fileName}`);
+            console.log(`Current file: ${fileName}`);
+        } else {
+            vscode.window.showWarningMessage('Нет открытого файла');
+        }
+    });
+
+    // маленькая метка справа снизу, чтобы видеть, что расширение работает
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    statusBarItem.text = '$(pulse) VKR Active';
+    statusBarItem.tooltip = 'Расширение vkr-golodyaev запущено';
+    statusBarItem.show();
+
+    // подписка на все ресурсы, чтобы корректно очищать при деактивации
+    context.subscriptions.push(helloCommand, currentFileCommand, statusBarItem);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+    console.log('Extension "vkr-golodyaev" is now deactivated');
+}

@@ -9,13 +9,19 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:vkr-golodyaev.helloWorld"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "vkr-golodyaev.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "vkr-golodyaev.currentFile",
+        "title": "Show Current File"
       }
     ]
   },
