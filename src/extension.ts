@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { SemanticProvider } from './provider';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('✅ Extension "vkr-golodyaev" is now active!');
@@ -23,6 +24,16 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showWarningMessage('Нет открытого файла');
         }
     });
+
+	const provider = new SemanticProvider();
+
+    context.subscriptions.push(
+        vscode.languages.registerDocumentSemanticTokensProvider(
+            { language: 'python' },
+            provider,
+            provider.legend
+        )
+    );
 
     // маленькая метка справа снизу, чтобы видеть, что расширение работает
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);

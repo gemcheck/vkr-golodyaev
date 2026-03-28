@@ -2,12 +2,19 @@ import math
 
 print(1)
 
+a = 7
 
-a = 1234
-b = 5678
+def add(a, b):
+    result = a + b
+    return result
 
+value = 10
 
-print(a + b)
+def func():
+    value = "text"
+    return value
+
+print(add(6, 10))
 
 def hello():
     import math

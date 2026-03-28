@@ -9,32 +9,12 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onLanguage:python"
-  ],
   "main": "./out/extension.js",
   "contributes": {
-    "languages": [
-      {
-        "id": "python",
-        "aliases": ["Python", "python"],
-        "extensions": [".py"],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "python",
-        "scopeName": "source.python",
-        "path": "./syntaxes/python.tmLanguage.json"
-      }
-    ],
-    "themes": [
-        {
-            "label": "VKR Python Colors",
-            "uiTheme": "vs-dark",
-            "path": "./themes/vkr-python-color-theme.json"
-        }
+    "semanticTokenTypes": [
+      { "id": "function", "description": "Custom function token" },
+      { "id": "variable", "description": "Custom variable token" },
+      { "id": "parameter", "description": "Custom parameter token" }
     ],
     "commands": [
       {

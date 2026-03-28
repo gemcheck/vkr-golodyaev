@@ -6,6 +6,32 @@
 	"search.exclude": {
 		"out": true // set this to false to include "out" folder in search results
 	},
+		
+	"editor.semanticHighlighting.enabled": true,
+	"editor.tokenColorCustomizations": {
+		"textMateRules": [
+			{
+				"scope": [
+					"source.python",
+					"keyword.control.python",
+					"string.quoted.double.python",
+					"string.quoted.single.python",
+					"comment.line.number-sign.python",
+					"storage.type.function.python"
+				],
+				"settings": {
+					"foreground": "#D4D4D4"
+				}
+			}
+		]
+	},
+	"editor.semanticTokenColorCustomizations": {
+		"rules": {
+			"function": "#ff0000",
+			"parameter": "#00ff00",
+			"variable": "#7f54a7"
+		}
+	},
 	// Turn off tsc task auto detection since we have the necessary tasks as npm scripts
 	"typescript.tsc.autoDetect": "off"
 }
