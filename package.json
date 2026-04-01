@@ -4,17 +4,37 @@
   "description": "Минимальное расширение для Python подсветки",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.110.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
   ],
   "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:python"
+  ],
   "contributes": {
+    "languages": [
+      {
+        "id": "python",
+        "extensions": [".py"]
+      }
+    ],  
     "semanticTokenTypes": [
       { "id": "function", "description": "Custom function token" },
       { "id": "variable", "description": "Custom variable token" },
-      { "id": "parameter", "description": "Custom parameter token" }
+      { "id": "parameter", "description": "Custom parameter token" },
+      { "id": "keyword", "description": "Custom keyword token" },
+      { "id": "string", "description": "String literals" },
+      { "id": "number", "description": "Numeric literals" },
+      { "id": "boolean", "description": "Boolean literals" }
+    ],
+    "themes": [
+        {
+            "label": "VKR Python Colors",
+            "uiTheme": "vs-dark",
+            "path": "./themes/vkr-python-color-theme.json"
+        }
     ],
     "commands": [
       {
