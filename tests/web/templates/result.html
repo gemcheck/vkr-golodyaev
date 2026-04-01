@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Результаты опроса</title>
+    <style>
+        pre { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Результаты опроса</h1>
+    <pre>{
+  "user_id": {{ user_id }},
+  "results": [{% for q in results %}
+    {
+      "assignment": {{ q.assignment }},
+      "qa_pairs": [ {% for question, answer in q.qa_pairs %}
+        {
+          "question": "{{ question|e }}",
+          "answer": "{{ answer|e }}"
+        }{% if not loop.last %},{% endif %} {% endfor %}
+      ],
+      "time_sec": {{ "%.2f"|format(q.time) }}
+    }{% if not loop.last %},{% endif %}
+{% endfor %}
+  ]
+}</pre>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Опрос по пониманию кода</title>
+</head>
+<body>
+    <h2>Задание {{ index + 1 }}</h2>
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+
+    {% if question.code %}
+        <pre style="font-size:16px;">{{ question.code }}</pre>
+    {% endif %}
+
+    {% if question.image %}
+        <img src="{{ url_for('static', filename=question.image) }}" style="max-width:800px;">
+    {% endif %}
+
+    <form method="post">
+        {% set qlist = question.get('questions', []) %}
+        {% for qtext in qlist %}
+            <p><b>{{ qtext }}</b></p>
+            <input type="text" name="answer_{{ loop.index0 }}" style="width:400px;" required>
+        {% endfor %}
+        <br>
+        <button type="submit">Далее</button>
+    </form>
+</body>
+</html>
