@@ -1,28 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <title>Результаты опроса</title>
     <style>
-        pre { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+        /* Общие стили страницы для соответствия современным UI-стандартам */
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #f5f7f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        
+        /* Блок отображения анонимного идентификатора респондента */
+        .user-info {
+            background-color: #edf2f7;
+            padding: 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 25px;
+            color: #4a5568;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #718096;
+            font-weight: 600;
+            padding: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+            vertical-align: top;
+        }
+        tr:hover { background-color: #f7fafc; }
+        
+        /* Цветовая индикация временных затрат */
+        .time-badge {
+            background-color: #e9f5ff;
+            color: #3182ce;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-restart {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 40px;
+            background-color: #3182ce;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-restart:hover {
+            background-color: #2b6cb0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+        }
     </style>
 </head>
 <body>
-    <h1>Результаты опроса</h1>
-    <pre>{
-  "user_id": {{ user_id }},
-  "results": [{% for q in results %}
-    {
-      "assignment": {{ q.assignment }},
-      "qa_pairs": [ {% for question, answer in q.qa_pairs %}
-        {
-          "question": "{{ question|e }}",
-          "answer": "{{ answer|e }}"
-        }{% if not loop.last %},{% endif %} {% endfor %}
-      ],
-      "time_sec": {{ "%.2f"|format(q.time) }}
-    }{% if not loop.last %},{% endif %}
-{% endfor %}
-  ]
-}</pre>
+    <div class="container">
+        <h1>Анализ результатов тестирования</h1>
+        <div class="user-info">
+            Ваш ID участника: <strong>{{ user_id }}</strong>
+        </div>
+        
+        <table>
+          <thead>
+              <tr>
+                  <th style="width: 40%;">Текст контрольного вопроса</th>
+                  <th style="width: 60%;">Сравнительная таблица попыток</th>
+              </tr>
+          </thead>
+          <tbody>
+              {# Группировка данных позволяет сопоставить ответы на одинаковые вопросы при разных типах листинга #}
+              {% for item in grouped_results %}
+              <tr>
+                  <td>
+                      <strong style="color: #2c3e50;">{{ item.question }}</strong>
+                  </td>
+                  <td>
+                      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                          {% for attempt in item.attempts %}
+                          {# Динамическое изменение цвета фона в зависимости от корректности ответа (Data-Driven Styling) #}
+                          <div style="flex: 1; min-width: 200px; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;
+                              {% if attempt.correct != 'N/A' %}
+                                  {% if attempt.answer|lower == attempt.correct|lower %}
+                                      background-color: #f0fff4; border-color: #c6f6d5;
+                                  {% else %}
+                                      background-color: #fff5f5; border-color: #fed7d7;
+                                  {% endif %}
+                              {% endif %}">
+                              
+                              <div style="font-size: 11px; color: #718096; margin-bottom: 5px;">
+                                  Порядковый номер страницы: {{ attempt.page_index }}
+                              </div>
+                              
+                              <div><strong>Ответ:</strong> {{ attempt.answer }}</div>
+                              
+                              {% if attempt.correct != 'N/A' %}
+                                  <div style="font-size: 12px; margin-top: 5px; color: #4a5568;">
+                                      <strong>Эталонный ответ:</strong> {{ attempt.correct }}
+                                  </div>
+                              {% endif %}
+                              
+                              {# Визуализация временной метрики для оценки скорости когнитивной обработки #}
+                              <div style="margin-top: 8px;">
+                                  <span class="time-badge">{{ attempt.time }} сек.</span>
+                              </div>
+                          </div>
+                          {% endfor %}
+                      </div>
+                  </td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+
+      <a href="{{ url_for('restart') }}" class="btn-restart">Перезапустить тестирование</a>
+    </div>
 </body>
 </html>

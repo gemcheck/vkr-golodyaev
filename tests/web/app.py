@@ -1,8 +1,32 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+import os
 import time
+from datetime import datetime  
+from flask import Flask, render_template, request, redirect, session, url_for
+from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv 
+
+load_dotenv()
 
 app = Flask(__name__)
-# app.secret_key = "secret_key_123"
+app.secret_key = os.getenv("SECRET_KEY")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# ---------------- МОДЕЛЬ ----------------
+class Response(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.BigInteger, nullable=False) 
+    question_index = db.Column(db.Integer)
+    question_text = db.Column(db.Text)
+    answer_text = db.Column(db.Text)
+    correct_answer = db.Column(db.Text)
+    time_taken = db.Column(db.Float)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+with app.app_context():
+    db.create_all()
 
 # ---------------- ДАННЫЕ ----------------
 questions = [
@@ -12,13 +36,31 @@ questions = [
 Все ответы анонимизированны.
 
 Развернуто:
-В рамках данного исследования изучается влияние различных способов визуализации программного кода на скорость его понимания и качество запоминания информации.
-Вам будет предложено выполнить несколько заданий, связанных с анализом небольших фрагментов кода на языке Python.
-Задания предполагают определение результатов выполнения кода и ответы на вопросы по его структуре.
-В ходе выполнения фиксируется время решения и корректность ответов. Важно выполнять задания последовательно и не возвращаться к предыдущим вопросам.
-После завершения основной части будет предложен небольшой блок вопросов на запоминание, направленный на оценку того, какая информация сохранилась после работы с кодом.
+ИНФОРМАЦИЯ ОБ ИССЛЕДОВАНИИ И СОГЛАСИЕ
+
+Данное исследование проводится в рамках подготовки выпускной квалификационной работы (ВКР) и направлено на изучение влияния различных способов визуализации программного кода на скорость его понимания и качество запоминания информации.
+
+Порядок проведения:
+
+* Вам будет предложено проанализировать фрагменты кода на языке Python и ответить на вопросы по их структуре и результатам выполнения.
+
+* В ходе тестирования фиксируется время решения, корректность ответов и технические параметры сессии.
+
+* Важно: выполняйте задания последовательно, не используйте кнопку «Назад» в браузере.
+
+Юридическая информация и конфиденциальность:
+
+1. Сбор данных осуществляется в анонимном виде. Исследование не предполагает сбор персональных данных, позволяющих идентифицировать вашу личность (ФИО, номер телефона, e-mail).
+
+2. Нажимая кнопку «Далее», вы даете свое согласие на автоматизированную обработку предоставляемых вами данных (включая технические параметры сессии) в соответствии с ФЗ №152-ФЗ «О персональных данных».
+
+3. Все полученные результаты будут использованы исключительно в научных и исследовательских целях в обобщенном виде.
+
+4.  Участие является добровольным. Вы можете прекратить тестирование в любой момент, просто закрыв вкладку браузера (в этом случае данные не будут засчитаны).
+
 Пожалуйста, старайтесь отвечать максимально точно и работать в комфортном для вас темпе.
-Полученные данные будут использованы исключительно в исследовательских целях в рамках выпускной квалификационной работы."""
+
+Нажимая кнопку «Далее», вы подтверждаете ознакомление с правилами и даете согласие на участие в исследовании."""
     },
     {   
         "code": "Укажите ваш курс или должность.\n",
@@ -26,102 +68,231 @@ questions = [
             "Для студентов номер курса, для работников грейд(джуниор, мидл, синьор)"
         ]
     },
-    {
-        "image": "que1.png",
-        "code": "Запомните код, на следующих страницах Вас ждут небольшие вопросы по коду"
+
+
+    {   
+        "code": """Этап 1: Базовый уровень сложности. 
+Вам будет предложено два листинга кода. К каждому из них составлено по два вопроса. Для удобства анализа текст кода и вопрос к нему представлены на одной странице."""
     },
-    {
+    {   "image": "que11.png",
         "questions": [
-            "1. Какое значение имеет переменная z?"
-        ]
+            "1. Какое значение имеет итоговая переменная?\nОтвет введите числом"
+        ],
+        "correct_answers": ["10"]
     },
-    {
+    {   "image": "que11.png",
         "questions": [
-            "2. Какая переменная используется для вычисления y?"
-        ]
+            "2. Какая переменная используется для хранения результата внутри функции?"
+        ],
+        "correct_answers": ["result"]
+    },
+    {   "image": "que1.png",
+        "questions": [
+            "1. Какое значение имеет итоговая переменная?\nОтвет введите числом"
+        ],
+        "correct_answers": ["15"]
+    },
+    {   "image": "que1.png",
+        "questions": [
+            "2. Какая переменная используется для хранения результата внутри функции?"
+        ],
+        "correct_answers": ["output"]
+    },
+
+
+    {   
+        "code": """Этап 2: Средний уровень сложности. 
+Данный этап включает в себя два листинга кода повышенной сложности. К каждому фрагменту прилагается по два вопроса. Обратите внимание: структура кода и логика вычислений на данном этапе требуют более детального анализа."""
+    },
+    {   "image": "que21.png",
+        "questions": [
+            "1. Какое значение имеет итоговая переменная?\nОтвет введите числом"
+        ],
+        "correct_answers": ["6"]
+    },
+    {   "image": "que21.png",
+        "questions": [
+            "2. Какая переменная используется в цикле (счетчик)?"
+        ],
+        "correct_answers": ["total"]
+    },
+    {   "image": "que2.png",
+        "questions": [
+            "1. Какое значение имеет итоговая переменная?\nОтвет введите числом"
+        ],
+        "correct_answers": ["6"]
+    },
+    {   "image": "que2.png",
+        "questions": [
+            "2. Какая переменная используется в цикле (счетчик)?"
+        ],
+        "correct_answers": ["acc"]
+    },
+
+
+    {   
+        "code": """Этап 3: Высокий уровень сложности. 
+Заключительный этап тестирования. Вам будет предложено два комплексных фрагмента кода. К каждому из них составлено по ЧЕТЫРЕ контрольных вопроса. Данный блок направлен на проверку глубокого понимания алгоритмической логики и взаимосвязей внутри программы."""
+    },
+    {   "image": "que31.png",
+        "questions": [
+            "1. Сколько раз вызывается основная вычислительная функция (square / cube)?\nОтвет введите числом"
+        ],
+        "correct_answers": ["3"]
+    },
+    {   "image": "que31.png",
+        "questions": [
+            "2. Какой параметр у функции?\nОтвет введите одной буквой латинского алфавита"
+        ],
+        "correct_answers": ["x"]
+    },
+    {   "image": "que31.png",
+        "questions": [
+            "3. Какая переменная используется в цикле?"
+        ],
+        "correct_answers": ["res"]
+    },
+    {   "image": "que31.png",
+        "questions": [
+            "4. Что возвращает основная функция?"
+        ],
+        "correct_answers": ["True"]
+    },
+    {   "image": "que3.png",
+        "questions": [
+            "1. Сколько раз вызывается основная вычислительная функция (square / cube)?\nОтвет введите числом"
+        ],
+        "correct_answers": ["3"]
+    },
+    {   "image": "que3.png",
+        "questions": [
+            "2. Какой параметр у функции?\nОтвет введите одной буквой латинского алфавита"
+        ],
+        "correct_answers": ["x"]
+    },
+    {   "image": "que3.png",
+        "questions": [
+            "3. Какая переменная используется в цикле?"
+        ],
+        "correct_answers": ["result"]
+    },
+    {   "image": "que3.png",
+        "questions": [
+            "4. Что возвращает основная функция?"
+        ],
+        "correct_answers": ["False"]
     }
-    # {
-    #     "code": "def square(n): return n*n",
-    #     "questions": [
-    #         "1. Что возвращает square(4)?",
-    #         "2. Назовите переменную внутри функции."
-    #     ]
-    # }
 ]
 
-# ---------------- Состояние сессии ----------------
-survey_state = {
-    "start_time": None,
-    "user_id": None,
-    "answers": [],
-    "timestamps": []
-}
+# ---------------- РОУТЫ ----------------
 
-# ---------------- Роуты ----------------
 @app.route("/", methods=["GET", "POST"])
 def survey():
-    global user
-    index = len(survey_state["answers"])
+    # Идентификация уникальной сессии без сбора персональных данных (анонимизация)
+    if "user_id" not in session:
+        session["user_id"] = int(time.time() * 1000)
+    
+    if "current_index" not in session:
+        session["current_index"] = 0
+        session["q_start_time"] = time.time()
 
-    # Если опрос только начинается, создаем user_id
-    if survey_state["start_time"] is None:
-        survey_state["start_time"] = time.time()
-        survey_state["user_id"] = int(time.time() * 1000)
-        user = survey_state["user_id"]
-        print(f"User ID: {survey_state['user_id']}")
+    index = session["current_index"]
 
-    # Инициализируем время начала вопроса, если это первый раз на странице
-    if "question_start_time" not in survey_state:
-        survey_state["question_start_time"] = time.time()
+    # Предотвращение ошибок выхода за границы списка при завершении теста
+    if index >= len(questions):
+        return redirect(url_for("finish"))
+
+    current_q = questions[index]
 
     if request.method == "POST":
-        current_q = questions[index]
-        user_answers = []
+        q_list = current_q.get("questions", [])
+        correct_list = current_q.get("correct_answers", [])
+        
+        # Вычисление когнитивной нагрузки через затраченное время
+        duration = round(time.time() - session.get("q_start_time", time.time()), 2)
 
-        for i, qtext in enumerate(current_q.get("questions", [])):
-            ans = request.form.get(f"answer_{i}", "").strip()
-            if not ans:
-                return render_template("survey.html", question=current_q, index=index, error="Ответ обязателен")
-            user_answers.append(ans)
+        if q_list:
+            # Валидация: все вопросы на странице должны иметь ответ
+            for i, _ in enumerate(q_list):
+                ans = request.form.get(f"answer_{i}", "").strip()
+                if not ans:
+                    return render_template("survey.html", question=current_q, index=index, error="Ответ обязателен")
+            
+            # Атомарное сохранение каждого ответа для детального анализа
+            for i, qtext in enumerate(q_list):
+                ans = request.form.get(f"answer_{i}", "").strip()
+                c_ans = correct_list[i] if i < len(correct_list) else "N/A"
+                new_resp = Response(
+                    user_id=session["user_id"],
+                    question_index=index + 1,
+                    question_text=qtext,
+                    answer_text=ans,
+                    correct_answer=c_ans,
+                    time_taken=duration
+                )
+                db.session.add(new_resp)
+        else:
+            # Логирование просмотра информационных блоков
+            new_resp = Response(
+                user_id=session["user_id"],
+                question_index=index + 1,
+                question_text="Инфо-страница",
+                answer_text="Просмотрено",
+                correct_answer="N/A",
+                time_taken=duration
+            )
+            db.session.add(new_resp)
 
-        # Время прохождения текущего вопроса
-        time_for_question = time.time() - survey_state["question_start_time"]
-        survey_state["answers"].append(user_answers)
-        survey_state["timestamps"].append(time_for_question)
-
-        index += 1
-        if index >= len(questions):
+        db.session.commit()
+        
+        session["current_index"] = index + 1
+        session["q_start_time"] = time.time()
+        
+        if session["current_index"] >= len(questions):
             return redirect(url_for("finish"))
+            
+        return redirect(url_for("survey"))
 
-        # Обновляем время начала следующего вопроса
-        survey_state["question_start_time"] = time.time()
-
-    if index < len(questions):
-        return render_template("survey.html", question=questions[index], index=index, error=None)
-    else:
-        return redirect(url_for("finish"))
+    return render_template("survey.html", question=current_q, index=index)
 
 @app.route("/finish")
 def finish():
-    results = []
-    for i, q in enumerate(questions):
-        ans_list = survey_state["answers"][i] if i < len(survey_state["answers"]) else []
-        q_texts = q.get("questions", ["(Только текст/изображение)"])
-        # Составляем список кортежей (вопрос, ответ)
-        qa_pairs = list(zip(q_texts, ans_list + ["(нет)"]*len(q_texts)))
-        results.append({
-            "assignment": i + 1,
-            "code": q.get("code", ""),
-            "image": q.get("image", ""),
-            "qa_pairs": qa_pairs,
-            "time": survey_state["timestamps"][i] if i < len(survey_state["timestamps"]) else 0
+    uid = session.get("user_id")
+    if not uid: 
+        return redirect(url_for("survey"))
+    
+    user_responses = Response.query.filter_by(user_id=uid).order_by(Response.id).all()
+    
+    # Группировка по тексту вопроса для сравнительного анализа ответов на разных этапах
+    grouped_results = {}
+    for r in user_responses:
+        q_key = r.question_text.strip()
+        
+        if q_key not in grouped_results:
+            grouped_results[q_key] = {
+                "question": q_key,
+                "attempts": []
+            }
+        
+        grouped_results[q_key]["attempts"].append({
+            "answer": r.answer_text,
+            "correct": r.correct_answer,
+            "time": r.time_taken,
+            "page_index": r.question_index
         })
-    return render_template("result.html", results=results, user_id=survey_state["user_id"])
+    
+    return render_template("result.html", 
+                            grouped_results=grouped_results.values(), 
+                            user_id=uid)
 
-# ---------------- Запуск ----------------
+@app.route("/restart")
+def restart():
+    session.pop("current_index", None)
+    session.pop("q_start_time", None)
+    return redirect(url_for("survey"))
+
 if __name__ == "__main__":
-    # Для доступа через интернет: host="0.0.0.0"
-    app.run(debug=True, host="0.0.0.0", port=5000)
-
-# Running on http://127.0.0.1:5000
-# Running on http://192.168.31.99:5000
+    app.run(
+        debug=os.getenv("DEBUG", "False") == "True",
+        port=int(os.getenv("PORT", 5000))
+    )

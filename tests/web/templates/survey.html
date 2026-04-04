@@ -1,30 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Опрос по пониманию кода</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование: восприятие программного кода</title>
+    <style>
+        /* Базовая верстка: центрирование контента для минимизации движений глаз респондента */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; 
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #f5f7f9;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            margin: 10px 0 15px 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        /* Оформление блока кода: имитация темной темы IDE для привычного восприятия разработчиками */
+        pre {
+            width: 100%;
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            text-align: left;
+            white-space: pre-wrap; 
+            word-wrap: break-word;
+            margin-bottom: 15px; 
+            box-sizing: border-box;
+            line-height: 1.4;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Контейнер для графических стимулов (схемы, визуализации) */
+        .image-container {
+            margin-bottom: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-text {
+            font-size: 17px;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        /* Кнопка перехода: контрастный цвет для быстрого обнаружения (Call to Action) */
+        button {
+            background-color: #3182ce;
+            color: white;
+            padding: 12px 40px;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: #2b6cb0; }
+    </style>
 </head>
 <body>
-    <h2>Задание {{ index + 1 }}</h2>
-    {% if error %}
-        <p style="color:red">{{ error }}</p>
-    {% endif %}
 
-    {% if question.code %}
-        <pre style="font-size:16px;">{{ question.code }}</pre>
-    {% endif %}
+    <div class="main-container">
+        <h2>Задание {{ index + 1 }}</h2>
 
-    {% if question.image %}
-        <img src="{{ url_for('static', filename=question.image) }}" style="max-width:800px;">
-    {% endif %}
+        {% if error %}
+            <p style="color:red; margin-bottom: 10px;">{{ error }}</p>
+        {% endif %}
 
-    <form method="post">
-        {% set qlist = question.get('questions', []) %}
-        {% for qtext in qlist %}
-            <p><b>{{ qtext }}</b></p>
-            <input type="text" name="answer_{{ loop.index0 }}" style="width:400px;" required>
-        {% endfor %}
-        <br>
-        <button type="submit">Далее</button>
-    </form>
+        {% if question.code %}
+            <pre>{{ question.code }}</pre>
+        {% endif %}
+
+        {% if question.image %}
+            <div class="image-container">
+                <img src="{{ url_for('static', filename=question.image) }}" 
+                     style="max-width:100%; height:auto; border-radius: 8px;">
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% set qlist = question.get('questions', []) %}
+            {% for qtext in qlist %}
+                <div class="question-text">{{ qtext }}</div>
+                <input type="text" name="answer_{{ loop.index0 }}" 
+                       placeholder="Ваш ответ..." required>
+            {% endfor %}
+            
+            <button type="submit">Далее</button>
+        </form>
+    </div>
+
 </body>
 </html>
