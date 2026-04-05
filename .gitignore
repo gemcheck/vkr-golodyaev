@@ -7,3 +7,4 @@ node_modules
 .env
 survey.db
 __pycache__/
+.venv

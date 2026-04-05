@@ -1,71 +1,95 @@
-# vkr-golodyaev README
+# Исследование влияния методов визуализации программного кода на его понимание (ВКР)
 
-This is the README for your extension "vkr-golodyaev". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Данный репозиторий содержит программный комплекс, разработанный в рамках выпускной квалификационной работы. Проект состоит из двух ключевых компонентов:
+1. **VS Code Extension (vkr-golodyaev)**: Инструмент семантической подсветки синтаксиса Python.
+2. **Web Survey Platform**: Платформа для проведения экспериментов и сбора метрик понимания кода.
 
 ---
 
-## Following extension guidelines
+## Часть 1: VS Code расширение (vkr-golodyaev)
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Расширение реализует кастомную семантическую подсветку (Semantic Highlighting) для языка Python, используя собственный парсер и анализатор областей видимости.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+### Основные возможности
+* **Семантический анализ**: Различение функций, переменных, параметров и литералов.
+* **Учет областей видимости**: Корректное определение локальных параметров функций и глобальных переменных.
+* **Кастомная тема**: Специально разработанная цветовая схема "VKR Python Colors" для снижения когнитивной нагрузки.
+* **Встроенные команды**:
+    * `Hello World`: Проверка активации расширения.
+    * `Show Current File`: Вывод пути к текущему рабочему файлу.
 
-## Working with Markdown
+### Запуск и разработка расширения
+Для работы требуется **Node.js** (рекомендуемая версия 20+) и **VS Code**.
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+1. **Установка зависимостей**:
+   ```shell
+   npm install
+   ```
+   Если не сработает, то необходимо скачать Node.js с официального сайта https://nodejs.org/en
+    > Во время установки убедитесь, что галочка "Add to PATH" включена.
+2. **Компиляция исходного кода**:
+   ```shell
+   npm run compile
+   ```
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+3. **Запуск**:
+   * Откройте папку проекта в VS Code (`code .`).
+   * Нажмите `F5` для запуска окна "Extension Development Host".
+   * В открывшемся окне откройте любой `.py` файл для проверки подсветки.
 
-## For more information
+### Структура проекта
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+* **Корень проекта**: Исходный код расширения VS Code (`extension.ts`, `parser.ts`, `analyzer.ts`, `provider.ts`).
+* **package.json**: Манифест расширения, описание вкладов (contributes) и семантических токенов.
+* **themes/**: Описание цветовой темы `vkr-python-color-theme.json`.
+---
 
-**Enjoy!**
+## Часть 2: Веб-платформа для тестирования
+
+Платформа предназначена для проведения исследования: респондентам предлагаются различные варианты визуализации кода, а система фиксирует скорость и точность их ответов.
+
+### Технологический стек
+* Backend: Python 3.x, Flask.
+* Database: SQLite + SQLAlchemy (ORM).
+* Frontend: HTML5, Jinja2, CSS3 (адаптивная верстка).
+
+### Быстрый запуск веб-платформы
+1. **Установка Python-пакетов**:
+   ```bash
+   pip install flask flask_sqlalchemy python-dotenv
+   ```
+2. **Настройка окружения**:
+   Создайте файл `.env` в папке веб-приложения:
+   ```text
+   SECRET_KEY=<необходимо указать ключ>
+   DATABASE_URL=sqlite:///<название файла бд>.db
+   DEBUG=False
+   PORT=5000
+   ```
+3. **Запуск сервера**:
+   ```bash
+   python app.py
+   ```
+   Интерфейс будет доступен по адресу: `http://127.0.0.1:5000`.
+
+---
+
+### Структура проекта
+
+* **tests/web/** (или ваш путь):
+    * `app.py` — серверная логика и модели данных.
+    * `templates/` — шаблоны страниц (опрос, результаты).
+    * `static/` — графические стимулы (скриншоты кода для тестов).
+
+---
+
+### Методология сбора данных
+
+Система автоматически аккумулирует данные в таблице `Response` для последующего статистического анализа:
+* **Анонимная идентификация**: Привязка ответов к `user_id` сессии.
+* **Когнитивные метрики**: Замер `time_taken` (время в секундах между загрузкой задания и отправкой ответа).
+* **Качество понимания**: Сверка `answer_text` с `correct_answer`.
+* **Контекст**: Хранение индекса вопроса и текста задания для анализа сложности алгоритмов.
+
+## Лицензия и использование
+Разработано исключительно в учебных и научно-исследовательских целях в рамках подготовки ВКР.
