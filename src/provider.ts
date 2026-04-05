@@ -11,7 +11,8 @@ export class SemanticProvider implements vscode.DocumentSemanticTokensProvider {
         'keyword', 
         'string', 
         'number', 
-        'boolean'
+        'boolean',
+        'comment'
     ]);
 
 provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderResult<vscode.SemanticTokens> {
@@ -23,7 +24,7 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
 
         const typeMap: Record<string, number> = {
             'function': 0, 'variable': 1, 'parameter': 2, 'keyword': 3, 
-            'string': 4, 'number': 5, 'boolean': 6
+            'string': 4, 'number': 5, 'boolean': 6, 'comment': 7
         };
 
         // 1. Собираем все токены документа в единый массив
@@ -40,9 +41,11 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
             const funcMatch = lineText.match(/^def\s+(\w+)/);
             if (funcMatch) currentScope = funcMatch[1];
 
-            // 2. Обработка ЛИТЕРАЛОВ (Строки, Числа, Boolean)
+            const commentIndex = lineText.indexOf('#');
+
+            // 2. Обработка ЛИТЕРАЛОВ (Строки, Числа, Boolean, Комментарии)
             // Мы берем их напрямую из nodes, так как регулярка слов \b\w+\b их не поймает целиком
-            nodes.filter(n => n.line === lineIndex && ['string', 'number', 'boolean'].includes(n.type))
+            nodes.filter(n => n.line === lineIndex && ['string', 'number', 'boolean', 'comment'].includes(n.type))
                  .forEach(node => {
                     let startPos = 0;
                     // Ищем все вхождения (на случай print("a", "a"))
@@ -61,6 +64,9 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
             for (const match of words) {
                 const word = match[0];
                 const start = match.index!;
+
+                // Пропускаем, если слово находится в зоне комментария
+                if (commentIndex !== -1 && start >= commentIndex) continue;
 
                 // ПРИОРИТЕТНЫЙ ПОИСК:
                 // 1. Сначала ищем, не является ли это СЛОВО ПАРАМЕТРОМ именно в этой функции (через symbolTable)

@@ -5,7 +5,8 @@ export type NodeType =
     | 'keyword'
     | 'string'
     | 'number'
-    | 'boolean';
+    | 'boolean'
+    | 'comment';
 
 export interface Node {
     type: NodeType;
@@ -18,17 +19,32 @@ export function parse(text: string): Node[] {
     const nodes: Node[] = [];
 
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
+        const fullLine = lines[i];
 
-        // убираем комментарии
-        line = line.split('#')[0].trim();
+        // Ищем комментарий
+        const commentMatch = fullLine.match(/#(.*)/);
+        if (commentMatch) {
+            nodes.push({
+                type: 'comment',
+                name: commentMatch[0],
+                line: i
+            });
+        }
+
+        // Для остального парсинга берем только часть до комментария
+        let line = fullLine.split('#')[0];
 
         if (!line) continue;
         // 5 - Строки (в кавычках)
-        const stringRegex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+        const stringRegex = /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;
+
         let strMatch;
         while ((strMatch = stringRegex.exec(line)) !== null) {
-            nodes.push({ type: 'string', name: strMatch[0], line: i });
+            nodes.push({ 
+                type: 'string', 
+                name: strMatch[0], 
+                line: i 
+            });
         }
         
         // 1 - функция
@@ -50,7 +66,7 @@ export function parse(text: string): Node[] {
         
         
         // 2 - ключевые слова
-        const keywords = ['def','for', 'return', 'if', 'while', 'import', 'as', 'elif', 'else', 'in', 'from'];
+        const keywords = ['def', 'with', 'class','for', 'return', 'if', 'while', 'import', 'as', 'elif', 'else', 'in', 'from'];
         for (const kw of keywords) {
             const regex = new RegExp(`\\b${kw}\\b`);
             if (regex.test(line)) {
@@ -88,7 +104,7 @@ export function parse(text: string): Node[] {
         }
 
         // 7 - Boolean (True/False)
-        const boolMatches = line.matchAll(/\b(True|False)\b/g);
+        const boolMatches = line.matchAll(/\b(True|False|None)\b/g);
         for (const match of boolMatches) {
             nodes.push({ type: 'boolean', name: match[0], line: i });
         }

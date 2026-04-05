@@ -27,7 +27,8 @@
       { "id": "keyword", "description": "Custom keyword token" },
       { "id": "string", "description": "String literals" },
       { "id": "number", "description": "Numeric literals" },
-      { "id": "boolean", "description": "Boolean literals" }
+      { "id": "boolean", "description": "Boolean literals" },
+      { "id": "comment", "description": "Code comments" } 
     ],
     "themes": [
         {
