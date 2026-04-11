@@ -78,7 +78,7 @@ questions = [
         "questions": [
             "1. Какое значение имеет итоговая переменная?\nОтвет введите числом"
         ],
-        "correct_answers": ["10"]
+        "correct_answers": ["8"]
     },
     {   "image": "que11.png",
         "questions": [
@@ -114,7 +114,7 @@ questions = [
         "questions": [
             "2. Какая переменная используется в цикле (счетчик)?"
         ],
-        "correct_answers": ["total"]
+        "correct_answers": ["i"]
     },
     {   "image": "que2.png",
         "questions": [
@@ -126,7 +126,7 @@ questions = [
         "questions": [
             "2. Какая переменная используется в цикле (счетчик)?"
         ],
-        "correct_answers": ["acc"]
+        "correct_answers": ["j"]
     },
 
 

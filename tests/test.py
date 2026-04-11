@@ -1,3 +1,24 @@
+def sum(a, b):
+    result = a + b
+    return result
+
+x = 4
+y = 6
+
+res = sum(x, y)
+
+
+value = 4
+
+def calc(n):
+    total = 0
+    for i in range(n):
+        total = total + i
+    return total
+
+result = calc(value)
+
+
 def multiply(a, b):
     output = a * b
     return output
@@ -60,8 +81,18 @@ print(value)
 print(add(6, 10))
 print(c)
 
-def hello():
-    import math
-    for i in range(5):
-        print("Hello", i)
-    return True  # комментарий
+import math
+
+def square(x):
+    return x * x
+
+def process():
+    values = [1, 2, 3]
+
+    for v in values:
+        res = square(v)
+        print(res)
+
+    return True
+
+flag = process()
