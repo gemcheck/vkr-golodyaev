@@ -5,130 +5,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тестирование: восприятие программного кода</title>
     <style>
-        /* Базовая верстка: центрирование контента для минимизации движений глаз респондента */
+        :root {
+            --bg-workbench: #181818;
+            --bg-editor: #1e1e1e;
+            --bg-tabs: #252526;
+            --bg-tabs-active: #1e1e1e;
+            --text-main: #cccccc;
+            --text-selected-tab: #ffffff;
+            --border-color: #3e3e42;
+            --primary-accent: #007acc;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px; 
+            margin: 0; padding: 0;
+            background-color: var(--bg-workbench);
+            color: var(--text-main);
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            background-color: #f5f7f9;
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
         }
 
-        .main-container {
-            width: 100%;
-            max-width: 850px;
+        /* --- Вкладки --- */
+        .tabs-container {
+            display: flex; background-color: var(--bg-tabs);
+            border-bottom: 1px solid var(--border-color);
+            height: 35px;
+        }
+
+        .tab {
+            display: flex; align-items: center; padding: 0 15px;
+            border-right: 1px solid var(--border-color);
+            color: #808080; position: relative;
+        }
+
+        .tab.active { background-color: var(--bg-tabs-active); color: var(--text-selected-tab); }
+        .tab.active::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background-color: var(--primary-accent); }
+
+        /* --- Область редактора --- */
+        .editor-container {
+            flex: 1; background-color: var(--bg-editor);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .breadcrumbs { padding: 5px 15px; font-size: 11px; color: #888; border-bottom: 1px solid rgba(62, 62, 66, 0.4); }
+
+        /* Сетка для сравнения */
+        .comparison-grid {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            gap: 1px;
+            background-color: var(--border-color); /* Линии разделения */
+        }
+
+        .comparison-item {
+            flex: 1;
+            background-color: #1e1e1e;
+            overflow: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        h2 {
-            margin: 10px 0 15px 0;
-            color: #2c3e50;
-            font-size: 24px;
-        }
-
-        /* Оформление блока кода: имитация темной темы IDE для привычного восприятия разработчиками */
-        pre {
+        .comparison-label {
+            background: #252526;
             width: 100%;
-            background-color: #2d2d2d;
-            color: #f8f8f2;
-            padding: 20px;
-            border-radius: 8px;
-            font-size: 15px;
-            text-align: left;
-            white-space: pre-wrap; 
-            word-wrap: break-word;
-            margin-bottom: 15px; 
-            box-sizing: border-box;
-            line-height: 1.4;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            padding: 5px 0;
+            font-size: 12px;
+            color: #569cd6;
+            font-weight: bold;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        /* Контейнер для графических стимулов (схемы, визуализации) */
-        .image-container {
-            margin-bottom: 15px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
+        .code-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
         }
 
-        form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* --- Нижняя панель --- */
+        .bottom-panel {
+            height: 25vh;
+            background-color: var(--bg-workbench);
+            border-top: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
         }
 
-        .question-text {
-            font-size: 17px;
-            margin-bottom: 8px;
-            color: #2d3748;
-        }
+        .panel-content { flex: 1; padding: 15px 25px; overflow-y: auto; }
+
+        .question-label { font-family: var(--font-mono); color: #4fc1ff; font-size: 16px; margin-bottom: 8px; }
 
         input[type="text"] {
-            width: 100%;
-            max-width: 600px;
-            padding: 12px 15px;
-            font-size: 16px;
-            border: 2px solid #cbd5e0;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
+            width: 100%; padding: 8px; background-color: #1e1e1e;
+            border: 1px solid var(--border-color); color: #ce9178;
+            font-family: var(--font-mono); font-size: 15px; margin-bottom: 10px;
         }
 
-        /* Кнопка перехода: контрастный цвет для быстрого обнаружения (Call to Action) */
         button {
-            background-color: #3182ce;
-            color: white;
-            padding: 12px 40px;
-            font-size: 17px;
-            font-weight: 600;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 5px;
-            transition: background 0.2s;
+            float: left; background-color: var(--primary-accent);
+            color: white; padding: 6px 20px; border: none; cursor: pointer;
         }
 
-        button:hover { background-color: #2b6cb0; }
+        .status-bar { height: 22px; background-color: #007acc; color: white; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <h2>Задание {{ index + 1 }}</h2>
-
-        {% if error %}
-            <p style="color:red; margin-bottom: 10px;">{{ error }}</p>
-        {% endif %}
-
-        {% if question.code %}
-            <pre>{{ question.code }}</pre>
-        {% endif %}
-
-        {% if question.image %}
-            <div class="image-container">
-                <img src="{{ url_for('static', filename=question.image) }}" 
-                     style="max-width:100%; height:auto; border-radius: 8px;">
-            </div>
-        {% endif %}
-
-        <form method="post">
-            {% set qlist = question.get('questions', []) %}
-            {% for qtext in qlist %}
-                <div class="question-text">{{ qtext }}</div>
-                <input type="text" name="answer_{{ loop.index0 }}" 
-                       placeholder="Ваш ответ..." required>
-            {% endfor %}
-            
-            <button type="submit">Далее</button>
-        </form>
+    <div class="tabs-container">
+        <div class="tab active">
+            <span style="color: #519aba; margin-right: 7px;">Py</span> 
+            {% if question.type == 'comparison' %}comparison_view.py{% else %}main.py{% endif %}
+        </div>
     </div>
 
+    <div class="editor-container">
+        <div class="breadcrumbs">
+            research > final > <strong>subjective_evaluation</strong>
+        </div>
+        
+        <div class="comparison-grid">
+            {% if question.type == 'comparison' %}
+                {% for img in question.images %}
+                <div class="comparison-item">
+                    <div class="comparison-label">ВАРИАНТ {{ loop.index }}</div>
+                    <img src="{{ url_for('static', filename='' + img) }}" class="code-image">
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="comparison-item" style="align-items: flex-start;">
+                    {% if question.image %}
+                        <img src="{{ url_for('static', filename='' + question.image) }}" class="code-image">
+                    {% else %}
+                        <div style="padding: 30px; line-height: 1.6; font-size: 15px; white-space: pre-wrap;">{{ question.code }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bottom-panel">
+        <div class="panel-header" style="display:flex; background:#252526; height:30px; border-bottom:1px solid #3e3e42;">
+            <div style="padding: 0 15px; display:flex; align-items:center; font-size:11px; color:white; border-bottom:1px solid #007acc;">TERMINAL</div>
+        </div>
+        
+        <div class="panel-content">
+            <form method="post" autocomplete="off">
+                {% set qlist = question.get('questions', []) %}
+                {% if qlist %}
+                    {% for qtext in qlist %}
+                    <div class="question-item">
+                        <div class="question-label">>>> {{ qtext }}</div>
+                        <input type="text" name="answer_{{ loop.index0 }}" placeholder="Введите ответ..." required>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="question-label" style="color: #888; font-size: 14px;">Нажмите кнопку, чтобы продолжить...</div>
+                {% endif %}
+                <button type="submit">Отправить</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div>-- SUBJECTIVE ASSESSMENT --</div>
+        <div>Layout: Side-by-Side</div>
+    </div>
+
+    <script>
+        // Автофокус на поле ввода при загрузке
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const firstInput = document.querySelector('input[type="text"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    </script>
 </body>
 </html>
