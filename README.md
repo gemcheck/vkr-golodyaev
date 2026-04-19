@@ -53,7 +53,7 @@
 * Database: SQLite + SQLAlchemy (ORM).
 * Frontend: HTML5, Jinja2, CSS3 (адаптивная верстка).
 
-### Быстрый запуск веб-платформы
+### Быстрый локальный запуск веб-платформы
 1. **Установка Python-пакетов**:
    ```bash
    pip install flask flask_sqlalchemy python-dotenv
@@ -72,7 +72,98 @@
    ```
    Интерфейс будет доступен по адресу: `http://127.0.0.1:5000`.
 
----
+### Развертывание веб-платформы на Apache (mod_wsgi)
+
+1. **Установка системных пакетов**:
+   Обновите индекс пакетов и установите веб-сервер Apache с модулем WSGI:
+   ```bash
+   sudo apt update
+   sudo apt install apache2 libapache2-mod-wsgi-py3 python3-venv python3-full
+   ```
+   Стяните репозиторий, также необходимо дать вашему пользователю права на папку /var/www
+   ```
+   sudo chown $USER:$USER /var/www
+   cd /var/www/
+   git clone git@github.com:gemcheck/vkr-golodyaev.git
+   ```
+
+2. **Настройка конфигурации Apache**:
+   Откройте файл конфигурации сайта:
+   ```bash
+   sudo nano /etc/apache2/sites-available/000-default.conf
+   ```
+   Замените содержимое или добавьте следующую конфигурацию:
+   ```apache
+   <VirtualHost *:80>
+       ServerName <укажите адрес>
+
+       # WSGI настройки: пути к проекту и виртуальному окружению
+       WSGIDaemonProcess my_survey python-path=/var/www/vkr-golodyaev/tests/web/.venv
+       WSGIProcessGroup my_survey
+       WSGIScriptAlias / /var/www/vkr-golodyaev/tests/web/app.wsgi
+
+       <Directory /var/www/vkr-golodyaev/tests/web>
+           Require all granted
+       </Directory>
+
+       # Настройка статических файлов
+       Alias /static /var/www/vkr-golodyaev/tests/web/static
+       <Directory /var/www/vkr-golodyaev/tests/web/static/>
+           Require all granted
+       </Directory>
+
+       ErrorLog ${APACHE_LOG_DIR}/survey_error.log
+       CustomLog ${APACHE_LOG_DIR}/survey_access.log combined
+   </VirtualHost>
+   ```
+
+3. **Подготовка окружения и зависимостей**:
+   Создайте виртуальное окружение и установите необходимые библиотеки:
+   ```bash
+   cd /var/www/vkr-golodyaev/tests/web
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r req.txt
+   ```
+
+4. **Настройка переменных окружения**:
+   Создайте файл `.env` для хранения секретов:
+   ```bash
+   sudo nano .env
+   ```
+   Пример содержания:
+   ```text
+   SECRET_KEY=<необходимо указать ключ>
+   DATABASE_URL=sqlite:///<название файла бд>.db
+   DEBUG=False
+   PORT=5000
+   ```
+
+5. **Настройка прав доступа**:
+   Для корректной работы Apache с базой данных SQLite необходимо настроить права:
+   ```bash
+   # Права на чтение для папки проекта
+   sudo chmod -R 755 /var/www/vkr-golodyaev/tests/web
+
+   # Права на запись для базы данных и папки instance
+   cd /var/www/vkr-golodyaev/tests/web/instance/
+   sudo chown golodyaev:www-data survey.db .
+   sudo chmod 664 survey.db
+   sudo chmod 775 .
+   ```
+
+6. **Запуск сервера**:
+   Активируйте конфигурацию и перезапустите Apache:
+   ```bash
+   sudo a2ensite 000-default.conf
+   sudo systemctl restart apache2
+   ```
+
+#### Дополнительно: Копирование БД на локальную машину
+Для загрузки файла базы данных с сервера на локальный компьютер (Windows) используйте:
+```powershell
+scp -i .\cloud <логин>@<адрес сервера>:/var/www/vkr-golodyaev/tests/web/instance/survey.db C:\Users\<пользователь>\Downloads\
+```
 
 ### Структура проекта
 
@@ -80,6 +171,7 @@
     * `app.py` — серверная логика и модели данных.
     * `templates/` — шаблоны страниц (опрос, результаты).
     * `static/` — графические стимулы (скриншоты кода для тестов).
+    * `instance/` — папка с базой данных.
 
 ---
 
