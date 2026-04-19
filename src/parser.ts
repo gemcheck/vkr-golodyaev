@@ -1,12 +1,4 @@
-export type NodeType =
-    | 'function'
-    | 'variable'
-    | 'parameter'
-    | 'keyword'
-    | 'string'
-    | 'number'
-    | 'boolean'
-    | 'comment';
+export type NodeType = | 'function' | 'variable' | 'parameter' | 'keyword' | 'string' | 'number' | 'boolean' | 'comment';
 
 export interface Node {
     type: NodeType;
