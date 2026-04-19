@@ -189,20 +189,16 @@ questions = [
 ]
 
 # ---------------- РОУТЫ ----------------
-
 @app.route("/", methods=["GET", "POST"])
 def survey():
-    # Идентификация уникальной сессии без сбора персональных данных (анонимизация)
     if "user_id" not in session:
         session["user_id"] = int(time.time() * 1000)
-    
-    if "current_index" not in session:
         session["current_index"] = 0
         session["q_start_time"] = time.time()
-
+        session["temp_responses"] = []
+    
     index = session["current_index"]
 
-    # Предотвращение ошибок выхода за границы списка при завершении теста
     if index >= len(questions):
         return redirect(url_for("finish"))
 
@@ -211,48 +207,61 @@ def survey():
     if request.method == "POST":
         q_list = current_q.get("questions", [])
         correct_list = current_q.get("correct_answers", [])
-        
-        # Вычисление когнитивной нагрузки через затраченное время
         duration = round(time.time() - session.get("q_start_time", time.time()), 2)
 
+        step_responses = []
+
         if q_list:
-            # Валидация: все вопросы на странице должны иметь ответ
-            for i, _ in enumerate(q_list):
+            for i, qtext in enumerate(q_list):
                 ans = request.form.get(f"answer_{i}", "").strip()
                 if not ans:
                     return render_template("survey.html", question=current_q, index=index, error="Ответ обязателен")
-            
-            # Атомарное сохранение каждого ответа для детального анализа
-            for i, qtext in enumerate(q_list):
-                ans = request.form.get(f"answer_{i}", "").strip()
+                
                 c_ans = correct_list[i] if i < len(correct_list) else "N/A"
-                new_resp = Response(
-                    user_id=session["user_id"],
-                    question_index=index + 1,
-                    question_text=qtext,
-                    answer_text=ans,
-                    correct_answer=c_ans,
-                    time_taken=duration
-                )
-                db.session.add(new_resp)
+                
+                step_responses.append({
+                    "question_index": index + 1,
+                    "question_text": qtext,
+                    "answer_text": ans,
+                    "correct_answer": c_ans,
+                    "time_taken": duration
+                })
         else:
-            # Логирование просмотра информационных блоков
-            new_resp = Response(
-                user_id=session["user_id"],
-                question_index=index + 1,
-                question_text="Инфо-страница",
-                answer_text="Просмотрено",
-                correct_answer="N/A",
-                time_taken=duration
-            )
-            db.session.add(new_resp)
+            step_responses.append({
+                "question_index": index + 1,
+                "question_text": "Инфо-страница",
+                "answer_text": "Просмотрено",
+                "correct_answer": "N/A",
+                "time_taken": duration
+            })
 
-        db.session.commit()
+        temp = session["temp_responses"]
+        temp.extend(step_responses)
+        session["temp_responses"] = temp
         
         session["current_index"] = index + 1
         session["q_start_time"] = time.time()
         
+        # ЕСЛИ ЭТО БЫЛ ПОСЛЕДНИЙ ВОПРОС — СОХРАНЯЕМ ВСЁ В БД
         if session["current_index"] >= len(questions):
+            try:
+                for item in session["temp_responses"]:
+                    new_resp = Response(
+                        user_id=session["user_id"],
+                        question_index=item["question_index"],
+                        question_text=item["question_text"],
+                        answer_text=item["answer_text"],
+                        correct_answer=item["correct_answer"],
+                        time_taken=item["time_taken"]
+                    )
+                    db.session.add(new_resp)
+                
+                db.session.commit()
+                session.pop("temp_responses", None)
+            except Exception as e:
+                db.session.rollback()
+                print(f"Ошибка при сохранении: {e}")
+            
             return redirect(url_for("finish"))
             
         return redirect(url_for("survey"))
@@ -267,16 +276,11 @@ def finish():
     
     user_responses = Response.query.filter_by(user_id=uid).order_by(Response.id).all()
     
-    # Группировка по тексту вопроса для сравнительного анализа ответов на разных этапах
     grouped_results = {}
     for r in user_responses:
         q_key = r.question_text.strip()
-        
         if q_key not in grouped_results:
-            grouped_results[q_key] = {
-                "question": q_key,
-                "attempts": []
-            }
+            grouped_results[q_key] = {"question": q_key, "attempts": []}
         
         grouped_results[q_key]["attempts"].append({
             "answer": r.answer_text,
@@ -285,14 +289,11 @@ def finish():
             "page_index": r.question_index
         })
     
-    return render_template("result.html", 
-                            grouped_results=grouped_results.values(), 
-                            user_id=uid)
+    return render_template("result.html", grouped_results=grouped_results.values(), user_id=uid)
 
 @app.route("/restart")
 def restart():
-    session.pop("current_index", None)
-    session.pop("q_start_time", None)
+    session.clear()
     return redirect(url_for("survey"))
 
 if __name__ == "__main__":
