@@ -80,8 +80,13 @@
         }
 
         .code-image {
-            max-width: 100%;
+            /* Картинка не может быть шире контейнера */
+            max-width: 98%; 
+            /* Картинка не может быть выше доступного места (минус высота ярлыка) */
+            max-height: calc(100% - 40px); 
+            width: auto;
             height: auto;
+            object-fit: contain; 
             display: block;
         }
 
