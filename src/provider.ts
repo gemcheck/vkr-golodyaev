@@ -68,7 +68,6 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
                 // Пропускаем, если слово находится в зоне комментария
                 if (commentIndex !== -1 && start >= commentIndex) continue;
 
-                // ПРИОРИТЕТНЫЙ ПОИСК:
                 // 1. Сначала ищем, не является ли это СЛОВО ПАРАМЕТРОМ именно в этой функции (через symbolTable)
                 let symbol = symbolTable[`${word}_${currentScope}`];
                 

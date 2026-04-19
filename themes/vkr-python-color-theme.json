@@ -10,10 +10,10 @@
 
         "keyword": { "foreground": "#C586C0" },                     // Мягкий фиолетовый
 
-        "string": { "foreground": "#CE9178", "fontStyle": "italic" },                      // Охра/Дерево
+        "string": { "foreground": "#CE9178", "fontStyle": "italic" }, // Охра/Дерево
         "number": { "foreground": "#CE9178" },                      
-        "boolean": { "foreground": "#CE9178", "fontStyle": "bold" },                  // Бирюзовый
-        "comment": { "foreground": "#6A9955" }
+        "boolean": { "foreground": "#CE9178", "fontStyle": "bold" },  
+        "comment": { "foreground": "#6A9955" } // Зеленый
     }
     
 }

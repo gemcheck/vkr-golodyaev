@@ -35,7 +35,7 @@ export function parse(text: string): Node[] {
         let line = fullLine.split('#')[0];
 
         if (!line) continue;
-        // 5 - Строки (в кавычках)
+        // 0 - Строки (в кавычках)
         const stringRegex = /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;
 
         let strMatch;
@@ -62,9 +62,7 @@ export function parse(text: string): Node[] {
                 });
             }
         }
-
-        
-        
+      
         // 2 - ключевые слова
         const keywords = ['def', 'with', 'class','for', 'return', 'if', 'while', 'import', 'as', 'elif', 'else', 'in', 'from'];
         for (const kw of keywords) {
@@ -94,8 +92,6 @@ export function parse(text: string): Node[] {
                 line: i
             });
         }
-
-
 
         // 6 - Числа (целые и с плавающей точкой)
         const numberMatches = line.matchAll(/\b\d+(\.\d+)?\b/g);
