@@ -92,7 +92,7 @@
 
         /* --- Нижняя панель --- */
         .bottom-panel {
-            height: 35%;
+            height: 30%;
             background-color: var(--bg-workbench);
             border-top: 1px solid var(--border-color);
             display: flex; flex-direction: column;
@@ -121,7 +121,7 @@
     <div class="tabs-container">
         <div class="tab active">
             <span style="color: #519aba; margin-right: 7px;">Py</span> 
-            {% if question.type == 'comparison' %}comparison_view.py{% else %}main.py{% endif %}
+            {% if page.type == 'comparison' %}comparison_view.py{% else %}main.py{% endif %}
         </div>
     </div>
 
@@ -131,20 +131,23 @@
         </div>
         
         <div class="comparison-grid">
-            {% if question.type == 'comparison' %}
-                {% for img in question.images %}
+            {% if page.code and page.type != 'comparison' %}
+                <div class="comparison-item" style="align-items: flex-start; width: 100%;">
+                    <div style="padding: 20px; font-family: var(--font-mono); color: #6a9955; white-space: pre-wrap;">{{ page.code }}</div>
+                </div>
+            {% endif %}
+
+            {% if page.type == 'comparison' %}
+                {% for img_name in page.images %}
                 <div class="comparison-item">
                     <div class="comparison-label">ВАРИАНТ {{ loop.index }}</div>
-                    <img src="{{ url_for('static', filename='' + img) }}" class="code-image">
+                    <img src="{{ url_for('static', filename='images/' + img_name) }}" class="code-image">
                 </div>
                 {% endfor %}
-            {% else %}
-                <div class="comparison-item" style="align-items: flex-start;">
-                    {% if question.image %}
-                        <img src="{{ url_for('static', filename='' + question.image) }}" class="code-image">
-                    {% else %}
-                        <div style="padding: 30px; line-height: 1.6; font-size: 15px; white-space: pre-wrap;">{{ question.code }}</div>
-                    {% endif %}
+
+            {% elif page.image %}
+                <div class="comparison-item" style="align-items: flex-start; width: 100%;">
+                    <img src="{{ url_for('static', filename='images/' + page.image) }}" class="code-image" style="margin: 0;">
                 </div>
             {% endif %}
         </div>
@@ -157,18 +160,42 @@
         
         <div class="panel-content">
             <form method="post" autocomplete="off">
-                {% set qlist = question.get('questions', []) %}
-                {% if qlist %}
-                    {% for qtext in qlist %}
-                    <div class="question-item">
-                        <div class="question-label">>>> {{ qtext }}</div>
-                        <input type="text" name="answer_{{ loop.index0 }}" placeholder="Введите ответ..." required>
-                    </div>
+                {% if page.type == 'profile' %}
+                    {% for inp in page.inputs %}
+                        <div style="margin-bottom: 20px;">
+                            <div class="question-label">>>> {{ inp.label }}</div>
+                            <input type="text" name="{{ inp.name }}" placeholder="Введите значение..." required>
+                        </div>
                     {% endfor %}
+
+                {% elif page.type == 'comparison' %}
+                    <div style="color: #6a9955; margin-bottom: 15px; font-family: var(--font-mono);">{{ page.code }}</div>
+                    {% for q_text in page.questions %}
+                        <div style="margin-bottom: 20px;">
+                            <div class="question-label">>>> {{ q_text }}</div>
+                            <input type="text" name="comp_{{ loop.index0 }}" placeholder="Ваш ответ..." required>
+                        </div>
+                    {% endfor %}
+
+                {% elif page.type == 'question' %}
+                    <div class="question-label">>>> {{ page.question }}</div>
+                    <input type="text" name="answer" placeholder="Введите ответ..." required autofocus>
+
                 {% else %}
-                    <div class="question-label" style="color: #888; font-size: 14px;">Нажмите кнопку, чтобы продолжить...</div>
+                    <div class="question-label" style="color: #888;">>>> Нажмите "ВЫПОЛНИТЬ" для продолжения...</div>
                 {% endif %}
-                <button type="submit">Отправить</button>
+                <div id="error-message" style="
+                    color: #f44747; 
+                    font-family: var(--font-mono); 
+                    font-size: 13px; 
+                    margin-bottom: 15px; 
+                    display: {% if error %}block{% else %}none{% endif %};
+                ">
+                    [ERROR]: {{ error if error else "Необходимо заполнить все поля ввода." }}
+                </div>
+                <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <button type="submit">ВЫПОЛНИТЬ (Enter)</button>
+                </div>
             </form>
         </div>
     </div>
@@ -178,14 +205,54 @@
         <div>Layout: Side-by-Side</div>
     </div>
 
-    <script>
-        // Автофокус на поле ввода при загрузке
-        window.addEventListener('DOMContentLoaded', (event) => {
-            const firstInput = document.querySelector('input[type="text"]');
-            if (firstInput) {
-                firstInput.focus();
+<script>
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[type="text"][required]');
+            const errorDiv = document.getElementById('error-message');
+            let allValid = true;
+
+            inputs.forEach(input => {
+                if (input.value.trim() === "") {
+                    allValid = false;
+                    input.style.borderColor = "#f44747"; // Красная рамка
+                    input.classList.add('shake'); // Эффект тряски
+                    setTimeout(() => input.classList.remove('shake'), 400);
+                } else {
+                    input.style.borderColor = "var(--border-color)";
+                }
+            });
+
+            if (!allValid) {
+                event.preventDefault(); // Блокируем отправку
+                errorDiv.style.display = 'block'; 
+            } else {
+                form.submit();
             }
-        });
-    </script>
+        }
+    });
+
+    // Скрываем ошибку, когда пользователь начинает исправлять данные
+    document.addEventListener('input', function(e) {
+        if (e.target.tagName === 'INPUT') {
+            e.target.style.borderColor = "var(--border-color)";
+            const errorDiv = document.getElementById('error-message');
+            if (errorDiv) errorDiv.style.display = 'none';
+        }
+    });
+</script>
+
+<style>
+    /* Эффект тряски для пустых полей */
+    .shake {
+        animation: shake 0.4s ease-in-out;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+</style>
 </body>
 </html>

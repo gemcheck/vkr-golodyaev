@@ -2,150 +2,141 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Результаты опроса</title>
+    <title>Анализ результатов исследования</title>
     <style>
-        /* Общие стили страницы для соответствия современным UI-стандартам */
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background-color: #f5f7f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
+        :root {
+            --success-bg: #f0fff4; --success-border: #c6f6d5; --success-text: #2f855a;
+            --danger-bg: #fff5f5; --danger-border: #fed7d7; --danger-text: #c53030;
+            --info-bg: #ebf8ff; --info-border: #bee3f8; --info-text: #2b6cb0;
+            --dark-blue: #2c3e50;
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 900px;
-            width: 100%;
-            text-align: center;
-        }
-        h1 { color: #2c3e50; margin-bottom: 10px; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f5f7f9; padding: 20px; margin: 0; line-height: 1.5; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1100px; margin: 0 auto; }
         
-        /* Блок отображения анонимного идентификатора респондента */
-        .user-info {
-            background-color: #edf2f7;
-            padding: 10px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-bottom: 25px;
-            color: #4a5568;
+        h1 { color: var(--dark-blue); text-align: center; margin-bottom: 5px; }
+        .user-info { background: #edf2f7; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 25px; color: #4a5568; }
+
+        /* Таблица */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8fafc; color: #718096; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 20px 12px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+        
+        /* Карточки ответов */
+        .attempt-card {
+            flex: 1; min-width: 300px; max-width: 450px; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;
+            background: #fff; position: relative; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            text-align: left;
+        /* Стили для изображений кода */
+        .code-preview { margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #1e1e1e; }
+        .code-header { font-size: 9px; background: #333; padding: 3px 8px; color: #aaa; text-transform: uppercase; }
+        .code-preview img { width: 100%; height: auto; display: block; filter: contrast(1.1); max-height: 200px; object-fit: contain; }
+
+        /* Бейджи */
+        .category-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; 
+            font-weight: bold; text-transform: uppercase;
         }
-        th {
-            background-color: #f8fafc;
-            color: #718096;
-            font-weight: 600;
-            padding: 12px;
-            border-bottom: 2px solid #e2e8f0;
-            text-transform: uppercase;
-            font-size: 13px;
-        }
-        td {
-            padding: 15px 12px;
-            border-bottom: 1px solid #e2e8f0;
-            color: #2d3748;
-            vertical-align: top;
-        }
-        tr:hover { background-color: #f7fafc; }
+        .badge-profile { background: #e2e8f0; color: #4a5568; }
+        .badge-question { background: #feebc8; color: #c05621; }
+        .badge-comparison { background: #e9d8fd; color: #6b46c1; }
+
+        .time-badge { background: #3182ce; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
         
-        /* Цветовая индикация временных затрат */
-        .time-badge {
-            background-color: #e9f5ff;
-            color: #3182ce;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 14px;
-        }
+        .result-status { font-weight: bold; margin-top: 5px; font-size: 13px; display: flex; align-items: center; gap: 5px; }
+        .status-correct { color: var(--success-text); }
+        .status-wrong { color: var(--danger-text); }
+
+        .listing-meta { font-size: 11px; color: #4a5568; text-align: right; line-height: 1.2; }
+        .filename-text { font-family: 'Cascadia Code', monospace; font-size: 9px; color: #718096; }
 
         .btn-restart {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 14px 40px;
-            background-color: #3182ce;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
+            display: block; width: fit-content; margin: 30px auto 0; padding: 14px 40px;
+            background: #3182ce; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;
+            transition: background 0.2s;
         }
-        .btn-restart:hover {
-            background-color: #2b6cb0;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
-        }
+        .btn-restart:hover { background: #2b6cb0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Анализ результатов тестирования</h1>
-        <div class="user-info">
-            Ваш ID участника: <strong>{{ user_id }}</strong>
-        </div>
+        <h1>Результаты исследования</h1>
+        <div class="user-info">Участник ID: <strong>{{ user_id }}</strong> | Данные сохранены в: <code>check.db</code></div>
         
         <table>
-          <thead>
-              <tr>
-                  <th style="width: 40%;">Текст контрольного вопроса</th>
-                  <th style="width: 60%;">Сравнительная таблица попыток</th>
-              </tr>
-          </thead>
-          <tbody>
-              {# Группировка данных позволяет сопоставить ответы на одинаковые вопросы при разных типах листинга #}
-              {% for item in grouped_results %}
-              <tr>
-                  <td>
-                      <strong style="color: #2c3e50;">{{ item.question }}</strong>
-                  </td>
-                  <td>
-                      <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                          {% for attempt in item.attempts %}
-                          {# Динамическое изменение цвета фона в зависимости от корректности ответа (Data-Driven Styling) #}
-                          <div style="flex: 1; min-width: 200px; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;
-                              {% if attempt.correct != 'N/A' %}
-                                  {% if attempt.answer|lower == attempt.correct|lower %}
-                                      background-color: #f0fff4; border-color: #c6f6d5;
-                                  {% else %}
-                                      background-color: #fff5f5; border-color: #fed7d7;
-                                  {% endif %}
-                              {% endif %}">
-                              
-                              <div style="font-size: 11px; color: #718096; margin-bottom: 5px;">
-                                  Порядковый номер страницы: {{ attempt.page_index }}
-                              </div>
-                              
-                              <div><strong>Ответ:</strong> {{ attempt.answer }}</div>
-                              
-                              {% if attempt.correct != 'N/A' %}
-                                  <div style="font-size: 12px; margin-top: 5px; color: #4a5568;">
-                                      <strong>Эталонный ответ:</strong> {{ attempt.correct }}
-                                  </div>
-                              {% endif %}
-                              
-                              {# Визуализация временной метрики для оценки скорости когнитивной обработки #}
-                              <div style="margin-top: 8px;">
-                                  <span class="time-badge">{{ attempt.time }} сек.</span>
-                              </div>
-                          </div>
-                          {% endfor %}
-                      </div>
-                  </td>
-              </tr>
-              {% endfor %}
-          </tbody>
-      </table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Вопрос / Параметр</th>
+                    <th style="width: 70%;">Анализ ответа</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in results %}
+                <tr>
+                    <td>
+                        <strong style="color: #2d3748; font-size: 14px;">{{ item.question }}</strong>
+                    </td>
+                    <td>
+                        <div class="attempt-card" 
+                            style="{% if item.correct != 'N/A' %}
+                                        {% if item.answer|string|lower == item.correct|string|lower %}
+                                            background-color: var(--success-bg); border-color: var(--success-border);
+                                        {% else %}
+                                            background-color: var(--danger-bg); border-color: var(--danger-border);
+                                        {% endif %}
+                                    {% endif %}">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <span class="category-badge 
+                                    {% if item.category == 'profile' %}badge-profile
+                                    {% elif item.category == 'question' %}badge-question
+                                    {% else %}badge-comparison{% endif %}">
+                                    {{ item.category }}
+                                </span>
+                                
+                                <div class="listing-meta">
+                                    <strong>Листинг №{{ item.listing_id if item.listing_id else '—' }}</strong>
+                                    <div class="filename-text">{{ item.image if item.image else '' }}</div>
+                                </div>
+                            </div>
 
-      <a href="{{ url_for('restart') }}" class="btn-restart">Перезапустить тестирование</a>
+                            {% if item.image %}
+                            <div class="code-preview">
+                                <div class="code-header">Source View</div>
+                                <img src="{{ url_for('static', filename='images/que' + item.listing_id|string) + '_custom.png' }}" alt="Code Snippet">
+                            </div>
+                            {% endif %}
+
+                            <div style="margin-top: 5px;">
+                                <span style="color: #718096; font-size: 12px;">Ответ пользователя:</span><br>
+                                <code style="font-size: 14px; font-weight: bold; color: #2d3748;">{{ item.answer }}</code>
+                            </div>
+                            
+                            {% if item.correct != 'N/A' %}
+                            <div style="font-size: 12px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 8px;">
+                                <span style="color: #718096;">Ожидалось:</span> <strong>{{ item.correct }}</strong>
+                                <div class="result-status {% if item.answer|string|lower == item.correct|string|lower %}status-correct{% else %}status-wrong{% endif %}">
+                                    {% if item.answer|string|lower == item.correct|string|lower %}
+                                        ✓ Верно
+                                    {% else %}
+                                        ✕ Ошибка
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;">
+                                <span style="font-size: 11px; color: #718096;">Скорость:</span>
+                                <span class="time-badge">{{ item.time }} сек</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('restart') }}" class="btn-restart">Провести новое тестирование</a>
     </div>
 </body>
 </html>
