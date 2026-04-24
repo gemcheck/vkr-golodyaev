@@ -11,11 +11,13 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['SESSION_TYPE'] = 'filesystem'  
-Session(app)
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SESSION_FILE_DIR'] = os.path.join(basedir, 'flask_session')
 app.secret_key = os.getenv("SECRET_KEY")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+Session(app)
 db = SQLAlchemy(app)
 
 # ---------------- МОДЕЛЬ ДАННЫХ ----------------

@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 # не забыть поменять путь
-BASE_DIR = '/mnt/c/vkr-golodyaev/tests/web'
+BASE_DIR = '/var/www/vkr-golodyaev/tests/web'
 sys.path.insert(0, BASE_DIR)
 
 
