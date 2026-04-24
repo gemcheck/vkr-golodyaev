@@ -6,5 +6,7 @@ node_modules
 
 .env
 survey.db
+check.db
 __pycache__/
+flask_session/
 .venv

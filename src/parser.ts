@@ -27,36 +27,79 @@ export function parse(text: string): Node[] {
         let line = fullLine.split('#')[0];
 
         if (!line) continue;
-        // 0 - Строки (в кавычках)
-        const stringRegex = /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g;
-
+        // 0 - Обработка строк (включая f-строки)
+        const stringRegex = /(f)?(["'])(?:(?=(\\?))\3.)*?\2/g;
         let strMatch;
+
         while ((strMatch = stringRegex.exec(line)) !== null) {
-            nodes.push({ 
-                type: 'string', 
-                name: strMatch[0], 
-                line: i 
-            });
+            const fullMatch = strMatch[0];
+            const isFString = strMatch[1] === 'f';
+
+            if (isFString) {
+                // Логика для f-строки: разбиваем на части
+                let lastPos = 0;
+                const braceRegex = /{(.*?)}/g;
+                let braceMatch;
+
+                while ((braceMatch = braceRegex.exec(fullMatch)) !== null) {
+                    // Записываем текстовый фрагмент ДО скобки как строку
+                    const textBefore = fullMatch.substring(lastPos, braceMatch.index);
+                    if (textBefore) {
+                        nodes.push({ type: 'string', name: textBefore, line: i });
+                    }
+
+                    // Выражение внутри {} — рекурсивно парсим как обычный код
+                    // (Для простоты в ВКР можно просто пропустить его здесь, 
+                    // чтобы основной цикл парсера по словам подхватил 'i' и 'get_fibonacci')
+                    
+                    // Записываем сами скобки как пунктуацию или ключевые слова (по желанию)
+                    nodes.push({ type: 'keyword', name: '{', line: i });
+                    nodes.push({ type: 'keyword', name: '}', line: i });
+
+                    lastPos = braceMatch.index + braceMatch[0].length;
+                }
+
+                // Записываем остаток строки после последней скобки
+                const textAfter = fullMatch.substring(lastPos);
+                if (textAfter) {
+                    nodes.push({ type: 'string', name: textAfter, line: i });
+                }
+            } else {
+                // Обычная строка
+                nodes.push({ type: 'string', name: fullMatch, line: i });
+            }
         }
         
         // 1 - функция
-        if (line.startsWith('def ')) {
-            const match = line.match(/def (\w+)\((.*?)\)/);
-            if (match) {
-                const [, name, params] = match;
-                nodes.push({ type: 'function', name, line: i });
+        const funcMatch = line.match(/^\s*def\s+(\w+)\s*\((.*?)\)/);
 
-                params.split(',').forEach(p => {
-                    const param = p.trim();
-                    if (param) {
-                        nodes.push({ type: 'parameter', name: param, line: i });
+        if (funcMatch) {
+            const [fullMatch, funcName, paramsString] = funcMatch;
+            
+            // Сохраняем имя функции
+            nodes.push({ type: 'function', name: funcName, line: i });
+            console.log(`[Parser] Найдена функция: ${funcName} на строке ${i}`);
+
+            // Разбираем параметры
+            paramsString.split(',').forEach(p => {
+                const trimmedParam = p.trim();
+                if (trimmedParam) {
+                    // Очищаем от аннотаций (: int) и дефолтных значений (=None)
+                    const cleanNameMatch = trimmedParam.match(/^(\w+)/);
+                    if (cleanNameMatch) {
+                        const paramName = cleanNameMatch[1];
+                        nodes.push({ type: 'parameter', name: paramName, line: i });
+                        console.log(`[Parser] --- Параметр: ${paramName}`);
                     }
-                });
-            }
+                }
+            });
         }
       
         // 2 - ключевые слова
-        const keywords = ['def', 'with', 'class','for', 'return', 'if', 'while', 'import', 'as', 'elif', 'else', 'in', 'from'];
+        const keywords = ['def', 'self', 'try', 'with', 'class', 'for', 
+                        'return', 'if', 'while', 'import', 'as', 'elif', 
+                        'else', 'in', 'from', 'except', 'finally',
+                        'lambda'];
         for (const kw of keywords) {
             const regex = new RegExp(`\\b${kw}\\b`);
             if (regex.test(line)) {
@@ -76,11 +119,11 @@ export function parse(text: string): Node[] {
         }
 
         // 4 - переменные
-        const assignMatch = line.match(/^\s*(\w+)\s*=/); 
-        if (assignMatch) {
+        const assignMatches = line.matchAll(/\b(\w+)\s*=[^=]/g); 
+        for (const match of assignMatches) {
             nodes.push({
                 type: 'variable',
-                name: assignMatch[1],
+                name: match[1],
                 line: i
             });
         }

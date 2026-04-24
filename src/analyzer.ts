@@ -17,20 +17,25 @@ export function analyze(nodes: Node[]): AnalysisResult {
     let currentScope = 'global';
 
     nodes.forEach(node => {
-        
         if (node.type === 'function') {
             currentScope = node.name;
             symbolTable[`${node.name}_global`] = { type: 'function', line: node.line, scope: 'global' };
         } 
+
         else if (node.type === 'parameter' || node.type === 'variable') {
-            symbolTable[`${node.name}_${currentScope}`] = { 
+            const key = `${node.name}_${currentScope}`;
+            
+            if (symbolTable[key] && symbolTable[key].type === 'parameter' && node.type === 'variable') {
+                return; 
+            }
+
+            symbolTable[key] = { 
                 type: node.type, 
                 line: node.line, 
                 scope: currentScope 
             };
-        } 
+        }
         else {
-            
             symbolTable[`${node.name}_global`] = { 
                 type: node.type, 
                 line: node.line, 

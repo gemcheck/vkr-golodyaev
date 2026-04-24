@@ -34,21 +34,20 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
         let currentScope = 'global';
 
         lines.forEach((lineText, lineIndex) => {
-            // Детектор области видимости Python (по отступам)
-            if (lineText.trim().length > 0 && !lineText.startsWith(' ') && !lineText.startsWith('\t') && !lineText.startsWith('def')) {
+            if (lineText.trim().length > 0 && !lineText.startsWith(' ') && !lineText.startsWith('\t')) {
                 currentScope = 'global';
             }
-            const funcMatch = lineText.match(/^def\s+(\w+)/);
-            if (funcMatch) currentScope = funcMatch[1];
+            const funcMatch = lineText.match(/^\s*def\s+(\w+)/);
+            if (funcMatch) {
+                currentScope = funcMatch[1];
+                console.log(`[Provider] Смена scope на: ${currentScope}`);
+            }
 
             const commentIndex = lineText.indexOf('#');
 
-            // 2. Обработка ЛИТЕРАЛОВ (Строки, Числа, Boolean, Комментарии)
-            // Мы берем их напрямую из nodes, так как регулярка слов \b\w+\b их не поймает целиком
             nodes.filter(n => n.line === lineIndex && ['string', 'number', 'boolean', 'comment'].includes(n.type))
                  .forEach(node => {
                     let startPos = 0;
-                    // Ищем все вхождения (на случай print("a", "a"))
                     while ((startPos = lineText.indexOf(node.name, startPos)) !== -1) {
                         allTokens.push({
                             line: lineIndex,
@@ -65,19 +64,21 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
                 const word = match[0];
                 const start = match.index!;
 
-                // Пропускаем, если слово находится в зоне комментария
-                if (commentIndex !== -1 && start >= commentIndex) continue;
+                const isInsideLiteral = allTokens.some(t => 
+                    t.line === lineIndex && 
+                    t.type === typeMap['string'] && 
+                    start >= t.start && 
+                    (start + word.length) <= (t.start + t.length)
+                );
 
-                // 1. Сначала ищем, не является ли это СЛОВО ПАРАМЕТРОМ именно в этой функции (через symbolTable)
-                let symbol = symbolTable[`${word}_${currentScope}`];
+                if (isInsideLiteral) continue;
+
+                let symbol = symbolTable[`${word}_${currentScope}`]
                 
-                // 2. Если в текущем скопе не нашли, ищем в глобальном
                 if (!symbol) {
                     symbol = symbolTable[`${word}_global`];
                 }
 
-                // 3. Если в таблице символов пусто, проверяем, нет ли этого слова в списке nodes вообще
-                // (на случай, если парсер нашел его, но анализатор не занес в таблицу)
                 if (!symbol) {
                     const node = nodes.find(n => n.name === word);
                     if (node) {
@@ -85,11 +86,15 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
                     }
                 }
 
+                symbol = symbolTable[`${word}_${currentScope}`] || symbolTable[`${word}_global`];
+
                 if (symbol) {
-                    const typeIndex = typeMap[symbol.type];
-                    if (typeIndex !== undefined) {
-                        builder.push(lineIndex, start, word.length, typeIndex, 0);
-                    }
+                    allTokens.push({
+                        line: lineIndex,
+                        start: start,
+                        length: word.length,
+                        type: typeMap[symbol.type]
+                    });
                 }
             }
         });
@@ -109,7 +114,7 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
         for (const token of allTokens) {
             if (token.line !== lastLine) {
                 lastLine = token.line;
-                lastStart = -1; // сбрасываем позицию при переходе на новую строку
+                lastStart = -1; 
             }
             
             // Добавляем токен только если он не перекрывает предыдущий
