@@ -9,7 +9,8 @@ git reset --hard HEAD
 git pull origin main
 
 echo "--- Установка прав доступа ---"
-# Основные права на проект
+sudo chmod 775 deploy.sh
+
 PROJECT_DIR="/var/www/vkr-golodyaev/tests/web"
 sudo chmod -R 755 $PROJECT_DIR
 sudo chown www-data:www-data "$PROJECT_DIR/flask_session/"
