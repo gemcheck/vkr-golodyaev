@@ -264,8 +264,8 @@ def generate_test_flow():
     pool = listings_pool.copy()
     random.shuffle(pool)
     
-    selected = pool[:18]
-    styles = ["none"] * 6 + ["standard"] * 6 + ["custom"] * 6
+    selected = pool[:1]
+    styles = ["none"] * 0 + ["standard"] * 0 + ["custom"] * 1
     random.shuffle(styles)
     
     flow = []
