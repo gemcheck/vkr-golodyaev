@@ -2,7 +2,6 @@
 
 PROJECT_DIR="/var/www/vkr-golodyaev"
 
-echo "--- Переходим в директорию проекта ---"
 cd $PROJECT_DIR || { echo "Ошибка: Директория не найдена"; exit 1; }
 
 echo "--- Загружаем обновления из Git ---"
