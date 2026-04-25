@@ -228,9 +228,9 @@ listings_pool = [
         "id": 18,
         "image_base": "que18",
         "questions": [
-            # {"text": "Какой метод используется для удаления первого элемента из списка order?", "correct": "pop"},
+            {"text": "Какой метод используется для удаления первого элемента из списка order?", "correct": "pop"},
             {"text": "Какой лимит кэша задан по умолчанию?", "correct": "5"},
-            {"text": "Является ли key параметром метода set? Ответ на английском yes/no", "correct": "yes"},
+            # {"text": "Является ли key параметром метода set? Ответ на английском yes/no", "correct": "yes"},
             # {"text": "Используются ли строки в теле методов? Ответ на английском yes/no", "correct": "no"},
             {"text": "Инициализируется ли self.store как словарь? Ответ на английском yes/no", "correct": "yes"}
         ]
@@ -406,7 +406,8 @@ def survey():
             "question_text": page.get("question", "Инфо"),
             "answer_text": final_ans,
             "correct_answer": page.get("correct", "N/A"),
-            "time_taken": duration
+            "time_taken": duration,
+            "completed_at": datetime.now()
         }
         
         temp = session.get("temp_responses", [])
@@ -435,7 +436,8 @@ def save_all_to_db():
                 question_text=item["question_text"],
                 answer_text=item["answer_text"],
                 correct_answer=item["correct_answer"],
-                time_taken=item["time_taken"]
+                time_taken=item["time_taken"],
+                created_at=item.get("completed_at", datetime.now())
             )
             db.session.add(new_resp)
         db.session.commit()
