@@ -41,7 +41,7 @@ listings_pool = [
         "id": 1,
         "image_base": "que1",
         "questions": [
-            {"text": "Сколько раз в коде вызывается метод append?", "correct": "2"},
+            {"text": "Сколько раз в коде встречается метод append?", "correct": "2"},
             {"text": "Как называется входной параметр функции merge_sort?", "correct": "arr"},
             {"text": "С каким значением сравнивается список в первый раз?", "correct": "1"}
             # {"text": "Является ли left_half входным параметром или локальной переменной? напишите (parametr/local)", "correct": "local"},
@@ -264,8 +264,8 @@ def generate_test_flow():
     pool = listings_pool.copy()
     random.shuffle(pool)
     
-    selected = pool[:1]
-    styles = ["none"] * 0 + ["standard"] * 0 + ["custom"] * 1
+    selected = pool[:18]
+    styles = ["none"] * 6 + ["standard"] * 6 + ["custom"] * 6
     random.shuffle(styles)
     
     flow = []
