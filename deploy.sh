@@ -5,6 +5,7 @@ PROJECT_DIR="/var/www/vkr-golodyaev"
 cd $PROJECT_DIR || { echo "Ошибка: Директория не найдена"; exit 1; }
 
 echo "--- Загружаем обновления из Git ---"
+git reset --hard HEAD
 git pull origin main
 
 echo "--- Установка прав доступа ---"
