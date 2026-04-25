@@ -12,6 +12,7 @@ echo "--- Установка прав доступа ---"
 # Основные права на проект
 PROJECT_DIR="/var/www/vkr-golodyaev/tests/web"
 sudo chmod -R 755 $PROJECT_DIR
+sudo chown www-data:www-data "$PROJECT_DIR/flask_session/"
 cd "$PROJECT_DIR/instance/" || { echo "Ошибка: Папка instance не найдена"; exit 1; }
 sudo chown golodyaev:www-data check.db .
 sudo chmod 664 check.db
