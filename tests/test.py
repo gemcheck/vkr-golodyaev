@@ -20,6 +20,11 @@ def merge_sort(arr):
     result.extend(right_half[j:])
     return result
 
+
+
+
+
+
 # =================================================================
 # 2. BREADTH-FIRST SEARCH (BFS)
 # =================================================================
@@ -44,6 +49,12 @@ def find_path(graph, start, end):
             
     return None # Path not found
 
+
+
+
+
+
+
 # =================================================================
 # 3. SIEVE OF ERATOSTHENES
 # =================================================================
@@ -66,9 +77,17 @@ def get_primes(limit):
             
     return result
 
+
+
+
+
+
+
+
+
+
 # =================================================================
 # 4. PASSWORD COMPLEXITY VALIDATOR
-# =================================================================
 def validate_password(password, min_len=8):
     if len(password) < min_len:
         return False, "Too short"
@@ -76,7 +95,7 @@ def validate_password(password, min_len=8):
     has_upper = any(c.isupper() for c in password)
     has_lower = any(c.islower() for c in password)
     has_digit = any(c.isdigit() for c in password)
-    special = "!@#$%^&*"
+    special = "!@$%^&*"
     has_spec = any(c in special for c in password)
 
     if not (has_upper and has_lower):
@@ -88,9 +107,17 @@ def validate_password(password, min_len=8):
         
     return True, "Strong password"
 
-# =================================================================
+
+
+
+
+
+
+
+
+
+
 # 5. CUSTOM CSV LINE PARSER
-# =================================================================
 def parse_csv_line(line, delimiter=",", quote='"'):
     results = []
     current = ""
@@ -110,12 +137,21 @@ def parse_csv_line(line, delimiter=",", quote='"'):
     
     return final if len(final) > 0 else None
 
+
+
+
+
+
+
+
+
 # =================================================================
 # 6. API RESPONSE FORMATTER
 # =================================================================
 def format_api_response(raw_data, version=1.0):
     output = {
-        "metadata": {"version": version, "status": "success"},
+        "metadata": {"version": version, 
+                    "status": "success"},
         "payload": []
     }
 
@@ -133,6 +169,12 @@ def format_api_response(raw_data, version=1.0):
         
     return output
 
+
+
+
+
+
+
 # =================================================================
 # 7. SHOPPING CART MANAGER
 # =================================================================
@@ -143,13 +185,14 @@ class ShoppingCart:
         self.discount = 0.0
 
     def add_item(self, name, price, qty=1):
-        if price <= 0:
-            return False
-        self.items.append({"name": name, "price": price, "qty": qty})
+        if price <= 0: return False
+        self.items.append({"name": name, "price": price, 
+                           "qty": qty})
         return True
 
     def get_total(self):
-        total = sum(i["price"] * i["qty"] for i in self.items)
+        total = sum(i["price"] * i["qty"] 
+                            for i in self.items)
         if total > 1000:
             self.discount = 0.1
         return total * (1 - self.discount)
@@ -158,8 +201,11 @@ class ShoppingCart:
         self.items = []
         self.discount = 0.0
 
-с =ShoppingCart()
-# =================================================================
+
+
+
+
+с =ShoppingCart()# =================================================================
 # 8. FILE LOGGER SYSTEM
 # =================================================================
 class FileLogger:
@@ -180,9 +226,15 @@ class FileLogger:
             return False
 
     def get_stats(self):
-        return f"File: {self.file}, Total: {self.logs_count}"
+        return f"File: {self.file}, Res: {self.logs_count}"
+
+
+
+
 
 с =FileLogger()
+
+
 # =================================================================
 # 9. RECTANGLE GEOMETRY CLASS
 # =================================================================
@@ -194,8 +246,7 @@ class Rectangle:
         self.h = height
         self.color = color
 
-    def area(self):
-        return self.w * self.h
+    def area(self): return self.w * self.h
 
     def perimeter(self):
         return 2 * (self.w + self.h)
@@ -209,6 +260,9 @@ class Rectangle:
 
     def info(self):
         return f"{self.color} rect: {self.w}x{self.h}"
+
+
+
 
 с =Rectangle()
 # =================================================================
@@ -231,6 +285,16 @@ def sanitize_text(input_str, allow_numbers=True):
     
     return cleaned if cleaned else "n/a"
 
+
+
+
+
+
+
+
+
+
+
 # =================================================================
 # 11. SAMPLE STATISTICS CALCULATOR
 # =================================================================
@@ -245,7 +309,8 @@ def get_statistics(numbers):
     sorted_nums = sorted(numbers)
     mid = count // 2
     if count % 2 == 0:
-        median = (sorted_nums[mid - 1] + sorted_nums[mid]) / 2
+        median = (sorted_nums[mid - 1] + 
+                            sorted_nums[mid]) / 2
     else:
         median = sorted_nums[mid]
         
@@ -254,6 +319,11 @@ def get_statistics(numbers):
         "median": median,
         "count": count
     }
+
+
+
+
+
 
 # =================================================================
 # 12. HTTP FETCH WITH RETRY MOCK
@@ -272,6 +342,19 @@ def fetch_with_retry(url, retries=3, timeout=5):
             
     return {"code": 500, "data": None}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 # =================================================================
 # 13. CURRENCY CONVERTER LOGIC
 # =================================================================
@@ -289,6 +372,18 @@ def convert_currency(amount, rate, fee_percent=2.5):
         return 0.0
         
     return final_amount
+
+
+
+
+
+
+
+
+
+
+
+
 
 # =================================================================
 # 14. UNIQUE ID GENERATOR
@@ -311,6 +406,14 @@ def generate_id(length=12, use_special=False):
         unique_id = "X" + unique_id[1:]
         
     return prefix + unique_id
+
+
+
+
+
+
+
+
 
 # =================================================================
 # 15. SERVER LOG ANALYZER
@@ -337,6 +440,11 @@ def analyze_server_logs(logs):
         "unique_critical_ips": list(critical_ips)
     }
 
+
+
+
+
+
 # =================================================================
 # 16. LIST DUPLICATE FINDER
 # =================================================================
@@ -357,11 +465,22 @@ def find_duplicates(items):
     dupes.sort()
     return dupes if len(dupes) > 0 else []
 
+
+
+
+
+
+
+
+
+
+
 # =================================================================
 # 17. MATRIX ADDITION CALCULATOR
 # =================================================================
 def add_matrices(mat_a, mat_b):
-    if len(mat_a) != len(mat_b) or len(mat_a[0]) != len(mat_b[0]):
+    if len(mat_a) != len(mat_b) 
+                or len(mat_a[0]) != len(mat_b[0]):
         return None
         
     rows = len(mat_a)
@@ -376,6 +495,15 @@ def add_matrices(mat_a, mat_b):
         result.append(new_row)
         
     return result
+
+
+
+
+
+
+
+
+
 
 # =================================================================
 # 18. SIMPLE LRU CACHE MOCK
@@ -399,6 +527,13 @@ class SimpleCache:
     def get(self, key):
         return self.store.get(key, None)
 
+
+
+
+
+
+
+
 c = SimpleCache()
 # =================================================================
 # 19. TIME DURATION FORMATTER
@@ -417,6 +552,18 @@ def format_duration(seconds):
     
     res = f"{h_str}:{m_str}:{s_str}"
     return res if hours < 100 else "99:59:59"
+
+
+
+
+
+
+
+
+
+
+
+
 
 # =================================================================
 # 20. TASK QUEUE PROCESSOR

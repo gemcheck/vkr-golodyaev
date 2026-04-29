@@ -40,7 +40,6 @@ provideDocumentSemanticTokens(document: vscode.TextDocument): vscode.ProviderRes
             const funcMatch = lineText.match(/^\s*def\s+(\w+)/);
             if (funcMatch) {
                 currentScope = funcMatch[1];
-                console.log(`[Provider] Смена scope на: ${currentScope}`);
             }
 
             const commentIndex = lineText.indexOf('#');

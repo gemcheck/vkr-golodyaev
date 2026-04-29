@@ -66,7 +66,6 @@ export function parse(text: string): Node[] {
             const [fullMatch, funcName, paramsString] = funcMatch;
             
             nodes.push({ type: 'function', name: funcName, line: i });
-            console.log(`[Parser] Найдена функция: ${funcName} на строке ${i}`);
 
             paramsString.split(',').forEach(p => {
                 const trimmedParam = p.trim();
@@ -76,7 +75,6 @@ export function parse(text: string): Node[] {
                     if (cleanNameMatch) {
                         const paramName = cleanNameMatch[1];
                         nodes.push({ type: 'parameter', name: paramName, line: i });
-                        console.log(`[Parser] --- Параметр: ${paramName}`);
                     }
                 }
             });
